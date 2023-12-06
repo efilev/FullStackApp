@@ -10,38 +10,31 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 
 export class LoginComponent implements OnInit {
-  public loginForm!: FormGroup
-  public formErrorMsg: string = 'All fields are required, please try again';
-  public formInvalid: boolean = false;
+  public formError: string = '';
+  public credentials = {
+  name: '',
+  email: '',
+  password: ''
+  };
 
   constructor(
-    private authenticationService: AuthenticationService,
-    private router: Router,
-    private formBuilder: FormBuilder
+  private router: Router,
+  private authenticationService: AuthenticationService
   ) { }
 
-  ngOnInit() {
-    this.loginForm = this.formBuilder.group({
-      email: ['', Validators.required],
-      password: ['', Validators.required]
-    });
-  }
-
+  ngOnInit() {}
   public onLoginSubmit(): void {
-    this.formInvalid = this.loginForm.invalid;
-    if (this.loginForm.valid) {
-      this.doLogin();
-    }
+    this.formError = '';
+    if (!this.credentials.email || !this.credentials.password) {
+      this.formError = 'All fields are required, please try again';
+      } else {
+        this.doLogin();
+      }
   }
 
   private doLogin(): void {
-    this
-      .authenticationService
-      .login(this.loginForm.value)
-      .then(() => this.router.navigateByUrl('list-trips'))
-      .catch((message) => {
-        this.formErrorMsg = message;
-        this.formInvalid = true;
-      });
+    this.authenticationService.login(this.credentials)
+      .then(() => this.router.navigateByUrl('#'))
+      .catch((message) => this.formError = message);
   }
 }
